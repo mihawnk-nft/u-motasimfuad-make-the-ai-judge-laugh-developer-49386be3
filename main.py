@@ -24,11 +24,20 @@ EXCUSE = (
 OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "/output")
 
 
+def validate(excuse: str) -> None:
+    """The house gate only accepts 1-200 characters; fail fast, never write."""
+    if not 1 <= len(excuse) <= 200:
+        raise ValueError("excuse must be 1-200 characters")
+
+
 def main() -> None:
+    validate(EXCUSE)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     entry_path = os.path.join(OUTPUT_DIR, "entry.txt")
-    with open(entry_path, "w", encoding="utf-8") as handle:
+    tmp_path = entry_path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as handle:
         handle.write(EXCUSE)
+    os.replace(tmp_path, entry_path)  # atomic: no half-written entry.txt
 
 
 if __name__ == "__main__":
